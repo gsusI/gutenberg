@@ -6,7 +6,7 @@ import clsx from 'clsx';
 /**
  * WordPress dependencies
  */
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, SearchControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -32,6 +32,7 @@ export default function QuickInserter( {
 	hasSearch = true,
 } ) {
 	const [ filterValue, setFilterValue ] = useState( '' );
+	const searchRef = useRef();
 	const [ destinationRootClientId, onInsertBlocks ] = useInsertionPoint( {
 		onSelect,
 		rootClientId,
@@ -69,6 +70,13 @@ export default function QuickInserter( {
 		}
 	}, [ setInserterIsOpened ] );
 
+	// Auto-focus search input when the inserter opens and search is visible
+	useEffect( () => {
+		if ( showSearch && searchRef.current ) {
+			searchRef.current.focus();
+		}
+	}, [ showSearch ] );
+
 	// When clicking Browse All select the appropriate block so as
 	// the insertion point can work as expected.
 	const onBrowseAll = () => {
@@ -89,6 +97,7 @@ export default function QuickInserter( {
 		>
 			{ showSearch && (
 				<SearchControl
+					ref={ searchRef }
 					__nextHasNoMarginBottom
 					className="block-editor-inserter__search"
 					value={ filterValue }

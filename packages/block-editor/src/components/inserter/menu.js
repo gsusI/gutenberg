@@ -88,6 +88,7 @@ function InserterMenu(
 		return 'blocks';
 	}
 	const [ selectedTab, setSelectedTab ] = useState( getInitialTab() );
+	const [ hasInitiallyFocused, setHasInitiallyFocused ] = useState( false );
 
 	const shouldUseZoomOut =
 		hasSectionRootClientId &&
@@ -104,6 +105,7 @@ function InserterMenu(
 			shouldFocusBlock,
 		} );
 	const blockTypesTabRef = useRef();
+	const searchRef = useRef();
 
 	const onInsert = useCallback(
 		( blocks, meta, shouldForceFocusBlock, _rootClientId ) => {
@@ -172,6 +174,7 @@ function InserterMenu(
 		return (
 			<>
 				<SearchControl
+					ref={ searchRef }
 					__nextHasNoMarginBottom
 					className="block-editor-inserter__search"
 					onChange={ ( value ) => {
@@ -320,6 +323,20 @@ function InserterMenu(
 			} );
 		}
 	}, [] );
+
+	// Auto-focus search input when the inserter menu first renders with a searchable tab
+	useLayoutEffect( () => {
+		if (
+			! hasInitiallyFocused &&
+			selectedTab !== 'media' &&
+			searchRef.current
+		) {
+			window.requestAnimationFrame( () => {
+				searchRef.current.focus();
+				setHasInitiallyFocused( true );
+			} );
+		}
+	}, [ selectedTab, hasInitiallyFocused ] );
 
 	return (
 		<div
